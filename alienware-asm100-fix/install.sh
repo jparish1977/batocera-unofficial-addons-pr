@@ -3,11 +3,19 @@
 # -------------------------------------------------------
 # Alienware ASM100 (Alpha / Steam Machine) Shutdown Fix
 # -------------------------------------------------------
-# The ASM100's ACPI power-off implementation is broken under Linux.
-# The kernel completes shutdown but the hardware never cuts power.
-# This fix bypasses the broken ACPI layer by writing the S5 sleep
-# type value directly to the PM1a control register.
+# The ASM100's ACPI power-off implementation is broken under Linux
+# due to a kernel regression between 4.16 and 6.x. The kernel
+# completes shutdown but the hardware never cuts power.
 #
+# The original SteamOS avoided this because systemd-logind handled
+# S5 transitions via acpid. Batocera's BusyBox init calls poweroff
+# directly, exposing the kernel bug.
+#
+# This fix bypasses the broken ACPI layer by writing the S5 sleep
+# type value (0x3C00) directly to the PM1a control register
+# (port 0x1804), extracted from the machine's FADT and DSDT tables.
+#
+# Full writeup: https://github.com/jparish1977/batocera-tools
 # Tested on: Alienware ASM100 (Alpha R1), BIOS A08, Batocera 39
 # -------------------------------------------------------
 
